@@ -1,4 +1,6 @@
 using API.Data;
+using API.Interfaces;
+using API.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +12,9 @@ builder.Services.AddSwaggerGen();
 
 // Controllers
 builder.Services.AddControllers();
+
+// Unit Of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // DbContext
 builder.Services.AddDbContext<StoreContext>(options =>
@@ -27,6 +32,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Cors
+app.UseCors(options => 
+{
+    options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:5173");
+});
 
 // Controller
 app.MapControllers();
