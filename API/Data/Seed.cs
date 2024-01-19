@@ -59,7 +59,7 @@ public static class Seed
                 Description = "Este mouse para juegos está repleto de funciones, que incluyen botones programables, configuraciones de DPI ajustables e iluminación RGB. También es liviano y ergonómico, lo que lo hace cómodo de usar durante largas sesiones de juego.",
                 PriceInUSD = 39,
                 PriceInARS = 31900.99,
-                PictureUrl = "images/products/Ryan-putra-j4PqlNVZ4Bc-unsplash.jpg",
+                PictureUrl = "images/products/ryan-putra-j4PqlNVZ4Bc-unsplash.jpg",
                 Category = "Mouse",
                 Brand = "Logitech",
                 QuantityInStock = 46
@@ -70,7 +70,7 @@ public static class Seed
                 Description = "Este mouse elegante y compacto está diseñado para ser portátil, con una forma de arco única que hace que sea fácil de guardar en un bolso o bolsillo. También es recargable mediante USB-C y tiene una batería de larga duración de hasta seis meses con una sola carga.",
                 PriceInUSD = 49,
                 PriceInARS = 40100.99,
-                PictureUrl = "images/products/Katlyn-luz-JOef0jIIYDM-unsplash.jpg",
+                PictureUrl = "images/products/katlyn-luz-JOef0jIIYDM-unsplash.jpg",
                 Category = "Mouse",
                 Brand = "Microsoft",
                 QuantityInStock = 81
@@ -92,7 +92,7 @@ public static class Seed
                 Description = "Esta computadora portátil delgada y potente está diseñada para brindar rendimiento y portabilidad, con un chip Apple M1 que ofrece velocidades de procesamiento rápidas y una batería de larga duración. También está equipado con una pantalla Retina, seguridad Touch ID y múltiples opciones de conectividad como USB-C y Wi-Fi 6.",
                 PriceInUSD = 999,
                 PriceInARS = 816900.99,
-                PictureUrl = "images/products/Maxim-hopman-Hin-rzhOdWs-unsplash.jpg",
+                PictureUrl = "images/products/maxim-hopman-Hin-rzhOdWs-unsplash.jpg",
                 Category = "Laptop",
                 Brand = "Apple",
                 QuantityInStock = 97
