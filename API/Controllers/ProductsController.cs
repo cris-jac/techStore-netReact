@@ -7,9 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
-[ApiController]
-[Route("api/[controller]")]
-public class ProductsController : ControllerBase
+public class ProductsController : ApiControllerBase
 {
     // private readonly StoreContext _dbContext;
     private readonly IUnitOfWork _unitOfWork;
@@ -37,14 +35,14 @@ public class ProductsController : ControllerBase
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.ErrorMessages.Add("There are no products");
 
-                return _response;
+                return NotFound(_response);
             }
 
             _response.IsSuccess = true;
             _response.StatusCode = HttpStatusCode.OK;
             _response.Result = products;
 
-            return _response;
+            return Ok(_response);
             
         }
         catch (Exception ex)
@@ -70,14 +68,14 @@ public class ProductsController : ControllerBase
                 _response.StatusCode = HttpStatusCode.NotFound;
                 _response.ErrorMessages.Add("Product not found");
                 
-                return _response;
+                return NotFound(_response);
             }
 
             _response.IsSuccess = true;
             _response.StatusCode = HttpStatusCode.OK;
             _response.Result = product;
 
-            return _response;
+            return Ok(_response);
         }
         catch (Exception ex)
         {
