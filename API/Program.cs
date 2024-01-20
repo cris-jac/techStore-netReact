@@ -16,6 +16,9 @@ builder.Services.AddControllers();
 // Unit Of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// HttpContextAccesor
+builder.Services.AddHttpContextAccessor();
+
 // DbContext
 builder.Services.AddDbContext<StoreContext>(options =>
 {
@@ -36,7 +39,7 @@ app.UseHttpsRedirection();
 // Cors
 app.UseCors(options => 
 {
-    options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:5173");
+    options.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:5173");      // Creentials -> Cookies
 });
 
 // Controller
