@@ -2,6 +2,7 @@ using System.Net;
 using API.Data;
 using API.Interfaces;
 using API.Models;
+using API.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,14 +57,25 @@ public class ProductsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetProducts(string orderBy, string searchTerm, string brands, string categories)
+    public async Task<ActionResult> GetProducts([FromQuery] ProductParams productParams
+        // , string orderBy, string searchTerm, string brands, string categories
+    )
     {
         try
         {
             // var query = _unitOfWork.Products;
 
             // Expression tree
-            var products = await _unitOfWork.Products.FilterResult(orderBy, searchTerm, brands, categories);
+            var products = await _unitOfWork.Products.GetFilteredResult(
+                productParams
+                // ,productParams.SortBy, productParams.SearchTerm, productParams.Brands, productParams.Categories
+                // , orderBy, searchTerm, brands, categories
+            );
+
+            // var productsPerPage = await PagedList<Product>.ToPagedList(
+            //     products.AsQueryable(), 
+            //     productParams.PageNumber, productParams.PageSize
+            // );
 
             if (products == null) return BadRequest();
 

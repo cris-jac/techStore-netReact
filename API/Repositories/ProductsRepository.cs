@@ -2,6 +2,7 @@ using API.Data;
 using API.Extensions;
 using API.Interfaces;
 using API.Models;
+using API.Utilities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,14 +19,22 @@ public class ProductsRepository : GenericRepository<Product>, IProductsRepositor
         return await _dbSet.FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<List<Product>> FilterResult(string sortBy, string searchTerm, string brands, string categories)
+    public async Task<PagedList<Product>> GetFilteredResult(
+        ProductParams productParams
+        // , string sortBy, string searchTerm, string brands, string categories
+    )
     {
-        var filteredResult = await _dbSet
-            .Sort(sortBy)
-            .Search(searchTerm)
-            .Filter(brands, categories)
-            .ToListAsync();
+        var query = _dbSet.AsQueryable();
 
-        return filteredResult;
+        var filteredResult = query
+            .Search(productParams.SearchTerm)
+            .Filter(productParams.Brands, productParams.Categories)
+            .Sort(productParams.SortBy)
+            ;
+            // .ToListAsync();
+
+        var pagedList = await PagedList<Product>.ToPagedList(filteredResult, productParams.PageNumber, productParams.PageSize);
+
+        return pagedList;
     }
 }
