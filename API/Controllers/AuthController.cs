@@ -1,9 +1,11 @@
+using API.Data;
 using API.DTOs;
 using API.Models;
 using API.Services;
 using API.Utilities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers;
 
@@ -11,11 +13,17 @@ public class AuthController : ApiControllerBase
 {
     private readonly UserManager<User> _userManager;
     private readonly TokenService _tokenService;
+    private readonly StoreContext _context;
 
-    public AuthController(UserManager<User> userManager, TokenService tokenService)
+    public AuthController(
+        UserManager<User> userManager, 
+        TokenService tokenService,
+        StoreContext context
+    )
     {
         _userManager = userManager;
         _tokenService = tokenService;
+        _context = context;
     }
 
     [HttpPost("login")]
@@ -60,5 +68,12 @@ public class AuthController : ApiControllerBase
         await _userManager.AddToRoleAsync(user, SD.Role_Customer);
 
         return Created();
+    }
+
+    [HttpGet]
+    public async Task<ActionResult> GetAllUsers()
+    {
+        var users = await _context.Users.ToListAsync();
+        return Ok(users);
     }
 }

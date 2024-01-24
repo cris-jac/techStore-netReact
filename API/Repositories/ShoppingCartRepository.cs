@@ -13,14 +13,20 @@ public class ShoppingCartRepository : GenericRepository<ShoppingCart>, IShopping
 
     public ShoppingCart CreateShoppingCart(IHttpContextAccessor httpContextAccessor)
     {
-        string buyerId = Guid.NewGuid().ToString();
-        var cookieOptions = new CookieOptions
-        {
-            IsEssential = true,
-            Expires = DateTime.Now.AddMinutes(5)
-        };
+        var buyerId = httpContextAccessor.HttpContext.User.Identity?.Name;
 
-        httpContextAccessor.HttpContext.Response.Cookies.Append("buyerId", buyerId, cookieOptions);
+        if (string.IsNullOrEmpty(buyerId))
+        {
+            buyerId = Guid.NewGuid().ToString();
+
+            var cookieOptions = new CookieOptions
+            {
+                IsEssential = true,
+                Expires = DateTime.Now.AddMinutes(5)
+            };
+
+            httpContextAccessor.HttpContext.Response.Cookies.Append("buyerId", buyerId, cookieOptions);
+        }
 
         ShoppingCart newShoppingCart = new ShoppingCart { BuyerId = buyerId };
 
@@ -29,10 +35,16 @@ public class ShoppingCartRepository : GenericRepository<ShoppingCart>, IShopping
         return newShoppingCart;
     }
 
-    public async Task<ShoppingCart> RetrieveShoppingCart(IHttpContextAccessor httpContextAccessor)
+    public async Task<ShoppingCart> RetrieveShoppingCart(IHttpContextAccessor httpContextAccessor, string buyerIdFromCookies)
     {
-        string buyerIdFromCookies = GetBuyerId(httpContextAccessor);
+        // check, if there's buyerId, delete it
+        if (string.IsNullOrEmpty(buyerIdFromCookies))
+        {
+            httpContextAccessor.HttpContext.Response.Cookies.Delete("buyerId");
+            return null;
+        }
 
+        // get cart using the buyerId
         ShoppingCart shoppingCartFromDb = await _dbSet
             .Include(i => i.Items)
             .ThenInclude(p => p.Product)
@@ -41,8 +53,8 @@ public class ShoppingCartRepository : GenericRepository<ShoppingCart>, IShopping
         return shoppingCartFromDb;
     }
 
-    private string GetBuyerId(IHttpContextAccessor httpContextAccessor)
+    public string GetBuyerId(IHttpContextAccessor httpContextAccessor)
     {
-        return httpContextAccessor.HttpContext.Request.Cookies["buyerId"];
+        return httpContextAccessor.HttpContext.User.Identity?.Name ?? httpContextAccessor.HttpContext.Request.Cookies["buyerId"];
     }
 }

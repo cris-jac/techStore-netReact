@@ -3,6 +3,7 @@ using System;
 using API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Data.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20240124055424_OrderModelsAddeed")]
+    partial class OrderModelsAddeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.1");
@@ -39,119 +42,6 @@ namespace API.Data.Migrations
                     b.HasIndex("ShoppingCartId");
 
                     b.ToTable("CartItems");
-                });
-
-            modelBuilder.Entity("API.Models.OrderAggregate.Order", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("BuyerId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<double>("DeliveryFee")
-                        .HasColumnType("REAL");
-
-                    b.Property<DateTime>("OrderDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("OrderStatus")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ShippingAddressId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("Subtotal")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ShippingAddressId");
-
-                    b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("API.Models.OrderAggregate.OrderItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("ItemOrderedId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("OrderId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("Price")
-                        .HasColumnType("REAL");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ItemOrderedId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderItem");
-                });
-
-            modelBuilder.Entity("API.Models.OrderAggregate.ProductItemOrdered", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PictureUrl")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProductItemOrdered");
-                });
-
-            modelBuilder.Entity("API.Models.OrderAggregate.ShippingAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("AdditionalInfo")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FullName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Locality")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Province")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("StreetName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("StreetNumber")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ShippingAddress");
                 });
 
             modelBuilder.Entity("API.Models.Product", b =>
@@ -464,30 +354,6 @@ namespace API.Data.Migrations
                     b.Navigation("ShoppingCart");
                 });
 
-            modelBuilder.Entity("API.Models.OrderAggregate.Order", b =>
-                {
-                    b.HasOne("API.Models.OrderAggregate.ShippingAddress", "ShippingAddress")
-                        .WithMany()
-                        .HasForeignKey("ShippingAddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ShippingAddress");
-                });
-
-            modelBuilder.Entity("API.Models.OrderAggregate.OrderItem", b =>
-                {
-                    b.HasOne("API.Models.OrderAggregate.ProductItemOrdered", "ItemOrdered")
-                        .WithMany()
-                        .HasForeignKey("ItemOrderedId");
-
-                    b.HasOne("API.Models.OrderAggregate.Order", null)
-                        .WithMany("OrderItems")
-                        .HasForeignKey("OrderId");
-
-                    b.Navigation("ItemOrdered");
-                });
-
             modelBuilder.Entity("API.Models.UserAddress", b =>
                 {
                     b.HasOne("API.Models.User", null)
@@ -546,11 +412,6 @@ namespace API.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("API.Models.OrderAggregate.Order", b =>
-                {
-                    b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("API.Models.ShoppingCart", b =>

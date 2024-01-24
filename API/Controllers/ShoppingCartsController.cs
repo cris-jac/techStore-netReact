@@ -1,5 +1,5 @@
 using API.Data;
-using API.Data.Migrations;
+// using API.Data.Migrations;
 using API.DTOs;
 using API.Interfaces;
 using API.Models;
@@ -28,12 +28,11 @@ public class ShoppingCartsController : ApiControllerBase
     [HttpGet(Name = "GetShoppingCart")]
     public async Task<ActionResult> GetShoppingCart()
     {
-        // get cart
-        // var shoppingCart = await _context.ShoppingCarts
-        //     .Include(i => i.Items)
-        //     .ThenInclude(p => p.Product)
-        //     .FirstAsync(x => x.BuyerId == Request.Cookies["buyerId"]);
-        var shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor);
+        // get buyerId
+        var buyerId = _unitOfWork.ShoppingCart.GetBuyerId(_httpContextAccessor);
+
+        // get cart using the buyerId
+        var shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor, buyerId);
 
         // create cart
         if (shoppingCart == null)
@@ -64,8 +63,11 @@ public class ShoppingCartsController : ApiControllerBase
     [HttpPost]
     public async Task<ActionResult> AddItemToShoppingCart(int productId, int quantity)
     {
+        // get buyerId
+        var buyerId = _unitOfWork.ShoppingCart.GetBuyerId(_httpContextAccessor);
+
         // get cart
-        var shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor);
+        var shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor, buyerId);
 
         // create cart
         if (shoppingCart == null)
@@ -92,8 +94,11 @@ public class ShoppingCartsController : ApiControllerBase
     [HttpDelete]
     public async Task<ActionResult> RemoveCartItem(int productId, int quantity)
     {
+        // get buyerId
+        var buyerId = _unitOfWork.ShoppingCart.GetBuyerId(_httpContextAccessor);
+
         // get cart
-        ShoppingCart shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor);
+        ShoppingCart shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor, buyerId);
 
         if (shoppingCart == null) return NotFound();
 
