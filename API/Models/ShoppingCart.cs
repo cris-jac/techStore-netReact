@@ -5,6 +5,9 @@ public class ShoppingCart
     public int Id { get; set; }
     public string BuyerId { get; set; }
     public List<CartItem> Items { get; set; } = new();
+    // Mercado Pago Preference
+    public long PreferenceClientId { get; set; }
+    public string PreferenceId { get; set; }
 
     public void AddItem(Product product, int quantity)
     {
