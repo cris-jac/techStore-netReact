@@ -10,15 +10,15 @@ namespace API.Controllers;
 
 public class ProductsController : ApiControllerBase
 {
-    private readonly StoreContext _dbContext;
+    // private readonly StoreContext _dbContext;
     private readonly IUnitOfWork _unitOfWork;
     private ApiResponse _response;
     public ProductsController(
-        StoreContext dbContext,
+        // StoreContext dbContext,
         IUnitOfWork unitOfWork
     )
     {
-        _dbContext = dbContext;
+        // _dbContext = dbContext;
         _unitOfWork = unitOfWork;
         _response = new ApiResponse();
     }

@@ -10,19 +10,19 @@ namespace API.Controllers;
 public class PaymentsController : ApiControllerBase
 {
     private readonly PaymentService _paymentService;
-    private readonly StoreContext _context;
+    // private readonly StoreContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public PaymentsController(
         PaymentService paymentService, 
-        StoreContext context,
+        // StoreContext context,
         IUnitOfWork unitOfWork,
         IHttpContextAccessor httpContextAccessor
     )
     {
         _paymentService = paymentService;
-        _context = context;
+        // _context = context;
         _unitOfWork = unitOfWork;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -57,11 +57,13 @@ public class PaymentsController : ApiControllerBase
         shoppingCart.PreferenceClientId = paymentIntent.client_id;
         shoppingCart.PreferenceId = paymentIntent.id;
 
-        // 
-        _context.Update(shoppingCart);
+        // Update the shopping cart
+        // _context.Update(shoppingCart);
+        bool updateCart = await _unitOfWork.ShoppingCart.UpdateEntity(shoppingCart);
+        if (!updateCart) return BadRequest("");
 
         // 
-        var result = await _context.SaveChangesAsync() > 0;
+        var result = await _unitOfWork.CompleteAsync() > 0;
 
         //
         if (!result) return BadRequest("Error while saving changes to cart");

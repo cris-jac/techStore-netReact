@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using API.Data;
 using API.Interfaces;
 
@@ -9,15 +10,23 @@ public class UnitOfWork : IUnitOfWork
     private readonly StoreContext _dbContext;
     public IProductsRepository Products { get; private set; }
     public IShoppingCartRepository ShoppingCart { get; private set; }
+    public IOrdersRepository Orders { get; private set; }
+
     public UnitOfWork(StoreContext dbContext)
     {
         _dbContext = dbContext;
         Products = new ProductsRepository(dbContext);
         ShoppingCart = new ShoppingCartRepository(dbContext);
+        Orders = new OrdersRepository(dbContext);
     }
 
-    public async Task CompleteAsync()
+    public async Task<int> CompleteAsync()
     {
-        await _dbContext.SaveChangesAsync();
+        return await _dbContext.SaveChangesAsync();
     }
+
+    // public IEnumerable<ValidationResult> GetValidationsErrors()
+    // {
+    //     return _dbContext.GetValidationResu
+    // }
 }

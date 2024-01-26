@@ -1,6 +1,7 @@
 using API.Data;
 using API.Interfaces;
 using API.Models;
+using API.Models.OrderAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Repositories;
@@ -51,6 +52,17 @@ public class ShoppingCartRepository : GenericRepository<ShoppingCart>, IShopping
             .FirstOrDefaultAsync(x => x.BuyerId == buyerIdFromCookies);
 
         return shoppingCartFromDb;
+    }
+
+    public async Task<ShoppingCart> GetShoppingCartByUser(string buyerUsername)
+    {
+        ShoppingCart cart = await _dbSet
+            .Include(i => i.Items)
+            .ThenInclude(p => p.Product)
+            .Where(b => b.BuyerId == buyerUsername)
+            .FirstOrDefaultAsync();
+        
+        return cart;
     }
 
     public string GetBuyerId(IHttpContextAccessor httpContextAccessor)

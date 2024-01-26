@@ -15,7 +15,7 @@ public class ShoppingCartsController : ApiControllerBase
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public ShoppingCartsController(
-        StoreContext context,
+        // StoreContext context,
         IUnitOfWork unitOfWork,
         IHttpContextAccessor httpContextAccessor
     )
@@ -110,32 +110,4 @@ public class ShoppingCartsController : ApiControllerBase
 
         return Ok();
     }
-    
-
-    // private async Task<ShoppingCart> RetrieveShoppingCart()
-    // {
-    //     var shoppingCart = await _context.ShoppingCarts
-    //         .Include(i => i.Items)
-    //         .ThenInclude(p => p.Product)
-    //         .FirstOrDefaultAsync(x => x.BuyerId == Request.Cookies["buyerId"]);
-
-    //     return shoppingCart;
-    // }
-
-    // private ShoppingCart CreateShoppingCart()
-    // {
-    //     var buyerId = Guid.NewGuid().ToString();
-
-    //     var cookieOptions = new CookieOptions { IsEssential = true, Expires = DateTime.Now.AddMinutes(3) };
-
-    //     Response.Cookies.Append("buyerId", buyerId, cookieOptions);
-
-    //     var cart = new ShoppingCart{ BuyerId = buyerId };
-
-    //     _context.ShoppingCarts.Add(cart);
-
-    //     return cart;
-    // }
-
-
 }

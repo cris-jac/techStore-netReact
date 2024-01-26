@@ -16,19 +16,24 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
 
     public async Task<bool> AddEntity(T entity)
     {
-        await _dbSet.AddAsync(entity);
-        return true;
+        _dbSet.Add(entity);
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> DeleteEntity(T entity)
     {
         _dbSet.Remove(entity);
-        await _dbContext.SaveChangesAsync();
-        return true;
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 
     public Task<List<T>> GetAllAsync()
     {
         return _dbSet.ToListAsync();
+    }
+
+    public async Task<bool> UpdateEntity(T entity)
+    {
+        _dbSet.Update(entity);
+        return await _dbContext.SaveChangesAsync() > 0;
     }
 }
