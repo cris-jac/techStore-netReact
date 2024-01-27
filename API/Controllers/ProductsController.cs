@@ -56,6 +56,44 @@ public class ProductsController : ApiControllerBase
         }
     }
 
+    [HttpGet("categories")]
+    public async Task<ActionResult> GetCategories()
+    {
+        var categories = await _unitOfWork.Products.GetCategories();
+        if (categories == null)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("There are no categoires found");
+            return NotFound(_response);
+        }
+        
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = categories;
+        return Ok(_response);
+    }
+
+
+    [HttpGet("brands")]
+    public async Task<ActionResult> GetBrands()
+    {
+        var brands = await _unitOfWork.Products.GetBrands();
+        if (brands == null)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("There are no categoires found");
+            return NotFound(_response);
+        }
+        
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = brands;
+        return Ok(_response);
+    }
+
+
     [HttpGet]
     public async Task<ActionResult> GetProducts([FromQuery] ProductParams productParams
         // , string orderBy, string searchTerm, string brands, string categories

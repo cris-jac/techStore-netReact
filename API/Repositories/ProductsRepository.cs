@@ -37,4 +37,16 @@ public class ProductsRepository : GenericRepository<Product>, IProductsRepositor
 
         return pagedList;
     }
+
+    public async Task<List<string>> GetCategories()
+    {
+        List<string> categories = await _dbSet.Select(x => x.Category).Distinct().ToListAsync();
+        return categories;
+    }
+
+        public async Task<List<string>> GetBrands()
+    {
+        List<string> brands = await _dbSet.Select(x => x.Brand).Distinct().ToListAsync();
+        return brands;
+    }
 }

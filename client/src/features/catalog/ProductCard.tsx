@@ -34,8 +34,8 @@ const ProductCard = ({ product }: Props) => {
         boxShadow: "none",
         position: 'relative',
         ":hover": {
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-          backgroundColor: "#D9D9D9",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.6)",
+          backgroundColor: "secondary",
           border: "1px solid #000",
         },
       }}
@@ -64,7 +64,7 @@ const ProductCard = ({ product }: Props) => {
             <Typography
               variant="h6"
               sx={{ fontWeight: "bold" }}
-              color="secondary"
+              color="secondary.light"
               gutterBottom
             >
               $ {product.priceInARS}
@@ -89,7 +89,7 @@ const ProductCard = ({ product }: Props) => {
       >
         <IconButton>
           {onCart ? (
-            <ShoppingCartIcon style={{ color: "blue" }} />
+            <ShoppingCartIcon style={{ color: "secondary" }} />
           ) : (
             <AddShoppingCartIcon style={{ color: "slate" }} />
           )}
@@ -109,7 +109,7 @@ const ProductCard = ({ product }: Props) => {
       >
         <IconButton>
           {onFavorites ? (
-            <FavoriteIcon style={{ color: "red" }} />
+            <FavoriteIcon style={{ color: "primary" }} />
           ) : (
             <FavoriteBorderIcon style={{ color: "slate" }} />
           )}

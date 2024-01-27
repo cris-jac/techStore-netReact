@@ -9,5 +9,7 @@ public interface IProductsRepository : IGenericRepository<Product>
     Task<PagedList<Product>> GetFilteredResult(
         ProductParams productParams
         // , string searchTerm, string sortBy, string brands, string categories
-        );
+    );
+    Task<List<string>> GetCategories();
+    Task<List<string>> GetBrands();
 }
