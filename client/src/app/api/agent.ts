@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from "axios";
 
 
 axios.defaults.baseURL = 'http://localhost:5072/api/';
+axios.defaults.withCredentials = true;
 
 const responseBody = (response: AxiosResponse) => response.data;
 
@@ -17,17 +18,24 @@ const Catalog = {
     details: (id: number) => requests.get(`products/${id}`),
 }
 
-const TestErrors = {
-    get400Error: () => requests.get('errors/bad-request'),
-    get401Error: () => requests.get('errors/unauthorized'),
-    get404Error: () => requests.get('errors/not-found'),
-    get500Error: () => requests.get('errors/server-error'),
-    getValidationError: () => requests.get('errors/validation-error'),
+const ShoppingCart = {
+    get: () => requests.get('shoppingcarts'),
+    addItem: (productId: number, quantity = 1) => requests.post(`shoppingcarts?productId=${productId}&quantity=${quantity}`, {}),
+    removeItem: (productId: number, quantity = 1) => requests.delete(`shoppingcarts?productId=${productId}&quantity=${quantity}`)
 }
+
+// const TestErrors = {
+//     get400Error: () => requests.get('errors/bad-request'),
+//     get401Error: () => requests.get('errors/unauthorized'),
+//     get404Error: () => requests.get('errors/not-found'),
+//     get500Error: () => requests.get('errors/server-error'),
+//     getValidationError: () => requests.get('errors/validation-error'),
+// }
 
 const agent = {
     Catalog,
-    TestErrors
+    // TestErrors,
+    ShoppingCart
 }
 
 export default agent;

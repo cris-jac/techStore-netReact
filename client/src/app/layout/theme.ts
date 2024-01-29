@@ -28,6 +28,7 @@ const theme = (paletteType: any) => createTheme({
         primary: (paletteType === 'light') ? '#081b1b' : '#e4f7f7',
       },
     },
+    // spacing: ["0", "4px", "8px", "16px", "32px", "64px"],
   });
   
   export default theme;

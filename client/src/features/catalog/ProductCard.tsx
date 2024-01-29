@@ -15,6 +15,7 @@ import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import agent from "../../app/api/agent";
 
 interface Props {
   product: Product;
@@ -23,6 +24,15 @@ interface Props {
 const ProductCard = ({ product }: Props) => {
   const [onCart, setOnCart] = useState(false);
   const [onFavorites, setOnFavorites] = useState(false);
+  
+  const [loading, setLoading] = useState(false);
+
+  const handleAddItem = (productId: number) => {
+    setLoading(true);
+    agent.ShoppingCart.addItem(productId)
+      .catch(error => console.log(error))
+      .finally(() => setLoading(false))
+  } 
 
   return (
     <Card
@@ -87,7 +97,7 @@ const ProductCard = ({ product }: Props) => {
         }}
         onClick={() => setOnCart(!onCart)}
       >
-        <IconButton>
+        <IconButton onClick={() => handleAddItem(product.id)}>
           {onCart ? (
             <ShoppingCartIcon style={{ color: "secondary" }} />
           ) : (

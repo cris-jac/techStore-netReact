@@ -234,7 +234,7 @@ const Header = ({ darkMode, handleThemeChange } : Props) => {
             </Button> */}
 
             <HeaderButton 
-              to="/cart" 
+              to="/shoppingcart" 
               label="Cart" 
               icon={
                 <Badge 
