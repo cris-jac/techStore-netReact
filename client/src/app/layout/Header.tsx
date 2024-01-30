@@ -7,6 +7,8 @@ import logo from "/images/logo_2.png";
 
 import HeaderButton from "../components/HeaderButton";
 import SideMenu from "../components/SideMenu";
+import { useAppSelector } from "../store/configureStore";
+import { getCookie } from "../util/util";
 
 // const midLinks = [
 //   { title: 'catalog', path: '/catalog' },
@@ -130,6 +132,14 @@ interface Props {
 }
 
 const Header = ({ darkMode, handleThemeChange } : Props) => {
+
+  const { cart } = useAppSelector(state => state.cart);
+  const itemCount = cart?.items
+  ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  : 0;
+
+  console.log(getCookie('buyerId'));
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
     <AppBar 
@@ -238,7 +248,7 @@ const Header = ({ darkMode, handleThemeChange } : Props) => {
               label="Cart" 
               icon={
                 <Badge 
-                  badgeContent={4} 
+                  badgeContent={itemCount} 
                   color="primary"    
                 >
                   <ShoppingCart />

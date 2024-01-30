@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { ShoppingCart } from '../../app/models/shoppingCart';
 import agent from '../../app/api/agent';
-import { Avatar, Box, Button, Container, Divider, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, styled } from '@mui/material';
-import { Link, NavLink } from 'react-router-dom';
+import { Button, Grid, Typography } from '@mui/material';
+import { NavLink } from 'react-router-dom';
 import ShoppingCartSummary from './ShoppingCartSummary';
 import ShoppingCartTable from './ShoppingCartTable';
+import { useAppDispatch, useAppSelector } from '../../app/store/configureStore';
+import { setCart } from './cartSlice';
 // import { makeStyles, spacing } from '@material-ui/core';
 
 // const useStyles = makeStyles({
@@ -19,47 +20,41 @@ import ShoppingCartTable from './ShoppingCartTable';
 const ShoppingCartPage = () => {
 
     const [loading, setLoading] = useState(true);
-    const [shoppingCart, setShoppingCart] = useState<ShoppingCart | null>(null)
+
+    const { cart } = useAppSelector(state => state.cart); 
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         agent.ShoppingCart.get()
-            .then(shoppingCart => setShoppingCart(shoppingCart))
+            .then(cart => dispatch(setCart(cart)))
             .catch(error => console.log(error))
             .finally(() => setLoading(false));
     }, []);
 
-    const list = [
-        {id: 1, quantity: 1, name: 'pepe', priceInRobux: 120 },
-        {id: 2, quantity: 1, name: 'pablo', priceInRobux: 120 },
-        {id: 3, quantity: 1, name: 'pit', priceInRobux: 120 },
-        {id: 4, quantity: 1, name: 'pierce', priceInRobux: 120 },
-        {id: 5, quantity: 1, name: 'pop', priceInRobux: 120 },
-        {id: 6, quantity: 1, name: 'pep', priceInRobux: 120 },
-        {id: 7, quantity: 1, name: 'pedro', priceInRobux: 120 },
-        {id: 8, quantity: 1, name: 'paul', priceInRobux: 120 },
-        {id: 9, quantity: 1, name: 'pete', priceInRobux: 120 },
-        {id: 10, quantity: 2, name: 'pierce', priceInRobux: 120 },
-        {id: 11, quantity: 2, name: 'pop', priceInRobux: 120 },
-        {id: 12, quantity: 2, name: 'pep', priceInRobux: 120 },
-        {id: 13, quantity: 2, name: 'pit', priceInRobux: 120 },
-        {id: 14, quantity: 2, name: 'pierce', priceInRobux: 120 },
-        {id: 15, quantity: 2, name: 'pop', priceInRobux: 120 },
-        {id: 16, quantity: 2, name: 'pep', priceInRobux: 120 },
-        {id: 17, quantity: 2, name: 'pedro', priceInRobux: 120 },
-        {id: 18, quantity: 2, name: 'paul', priceInRobux: 120 },
-    ]
-
-    // const GridItem = styled(Grid)(() => ({
-    //     backgroundColor: '#98d6a9',
-    //     padding: '2px',
-    //     textAlign: 'center',
-    //     // color: 'black',
-    //     // backgroundColor: ''
-    //   }));
+    // const list = [
+    //     {id: 1, quantity: 1, name: 'pepe', priceInRobux: 120 },
+    //     {id: 2, quantity: 1, name: 'pablo', priceInRobux: 120 },
+    //     {id: 3, quantity: 1, name: 'pit', priceInRobux: 120 },
+    //     {id: 4, quantity: 1, name: 'pierce', priceInRobux: 120 },
+    //     {id: 5, quantity: 1, name: 'pop', priceInRobux: 120 },
+    //     {id: 6, quantity: 1, name: 'pep', priceInRobux: 120 },
+    //     {id: 7, quantity: 1, name: 'pedro', priceInRobux: 120 },
+    //     {id: 8, quantity: 1, name: 'paul', priceInRobux: 120 },
+    //     {id: 9, quantity: 1, name: 'pete', priceInRobux: 120 },
+    //     {id: 10, quantity: 2, name: 'pierce', priceInRobux: 120 },
+    //     {id: 11, quantity: 2, name: 'pop', priceInRobux: 120 },
+    //     {id: 12, quantity: 2, name: 'pep', priceInRobux: 120 },
+    //     {id: 13, quantity: 2, name: 'pit', priceInRobux: 120 },
+    //     {id: 14, quantity: 2, name: 'pierce', priceInRobux: 120 },
+    //     {id: 15, quantity: 2, name: 'pop', priceInRobux: 120 },
+    //     {id: 16, quantity: 2, name: 'pep', priceInRobux: 120 },
+    //     {id: 17, quantity: 2, name: 'pedro', priceInRobux: 120 },
+    //     {id: 18, quantity: 2, name: 'paul', priceInRobux: 120 },
+    // ]
 
     if (loading) return <p>Loading</p>
 
-    if (!shoppingCart) return <Typography>You shopping cart is empty</Typography>
+    if (!cart) return <Typography>You shopping cart is empty</Typography>
 
   return (
     <Grid container spacing={0} direction="row" alignItems="start" 
@@ -125,7 +120,7 @@ const ShoppingCartPage = () => {
                     </TableBody>
                 </Table>
             </TableContainer> */}
-            <ShoppingCartTable items={list} />
+            <ShoppingCartTable items={cart.items} />
         </Grid>
 
         <Grid item xs={12} sm={4} sx={{ 
@@ -136,11 +131,11 @@ const ShoppingCartPage = () => {
             position: 'sticky',
             right: 0,
             top: 0,
-            display: 'flex', flexDirection: 'column'
+            display: 'flex', flexDirection: 'column', alignItems:'center'
             }}
             // position='fixed'
             >
-                <Typography variant='h4'sx={{mb:2, mt: 1}} >Buy summary</Typography>
+                <Typography variant='h5'sx={{mb:2, mt: 1}} >Buy summary</Typography>
                 {/* <TableContainer>
                     <Table>
                         <TableBody>
@@ -160,7 +155,7 @@ const ShoppingCartPage = () => {
                         </TableBody>
                     </Table>
                 </TableContainer> */}
-                <ShoppingCartSummary/>
+                <ShoppingCartSummary items={cart.items}/>
                 <NavLink to='/checkout'>
                     <Button 
                         variant='contained' 

@@ -23,7 +23,9 @@ public class ShoppingCartRepository : GenericRepository<ShoppingCart>, IShopping
             var cookieOptions = new CookieOptions
             {
                 IsEssential = true,
-                Expires = DateTime.Now.AddMinutes(5)
+                Expires = DateTime.Now.AddHours(1),
+                SameSite = SameSiteMode.None,
+                Secure = true
             };
 
             httpContextAccessor.HttpContext.Response.Cookies.Append("buyerId", buyerId, cookieOptions);
