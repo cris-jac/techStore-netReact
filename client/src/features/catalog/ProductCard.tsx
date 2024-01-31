@@ -15,30 +15,33 @@ import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import agent from "../../app/api/agent";
 // import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
 // import { setShoppingCart } from "../shoppingCart/shoppingCartSlice";
 import { 
-  useDispatch, 
+  useDispatch, useSelector, 
   // useSelector 
 } from "react-redux";
 // import { CartItem, ShoppingCart } from "../../app/models/shoppingCart";
 import { addItemToCart, removeItemFromCart, setCart } from "../shoppingCart/cartSlice";
 import { CartItem } from "../../app/models/shoppingCart";
+import { useAddItemToCartMutation, useGetCartQuery, useRemoveItemFromCartMutation } from "../shoppingCart/cartApi";
+import { RootState } from "../../app/store/store";
 // import { RootState } from "../../app/store/configureStore";
+
 
 interface Props {
   product: Product;
 }
 
 const ProductCard = ({ product }: Props) => {
-  const [onCart, setOnCart] = useState(false);
-  const [onFavorites, setOnFavorites] = useState(false);
+  const [isOnCart, setIsOnCart] = useState(false);
+  const [isOnFavorites, setIsOnFavorites] = useState(false);
   
+  // For Thunk
+  // const { status } = useSelector((state: RootState) => state.cart);
 
-  // const { shoppingCart } = useAppSelector(state => state.shoppingCart);
-  // const dispatch = useAppDispatch();
-  const [loading, setLoading] = useState(false);
+
+  // const [loading, setLoading] = useState(false);
 
   // const handleAddItem = (productId: number) => {
   //   setLoading(true);
@@ -52,15 +55,58 @@ const ProductCard = ({ product }: Props) => {
   // New
   // const [cartItems, setCartItems] = useState<CartItem[] | null>();
   const dispatch = useDispatch();
-  // const { cart } = useSelector((state: RootState) => state.cart);
+
+  const {cart} = useSelector((state: RootState) => state.cartStore);
 
   useEffect(() => {
-    setLoading(true);
-    agent.ShoppingCart.get()
-      .then(cart => dispatch(setCart(cart)))
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false))
-  }, [dispatch]);
+    console.log("Update set cart store");
+    dispatch(setCart(cart))
+  }, [cart]);
+
+
+  //
+  // // Setting Api data
+  // const { data: cart, isError, isLoading } = useGetCartQuery(null);
+
+  // // Updating the Store data
+  // useEffect(() => {
+  //     if (!isLoading && !isError && cart) {
+  //         console.log('setting cart in the state');
+  //         dispatch(setCart(cart)) 
+  //     } else if(isError) {
+  //         console.log(`Error while setting the cart state: ${isError}`);
+  //     }
+  // }, [cart, dispatch])      // Since there are other methods dispatched
+
+  // Api Requests
+  const [addItem] = useAddItemToCartMutation();
+  const [removeItem] = useRemoveItemFromCartMutation();
+
+  // Get Cart State
+  // const cartFromState = useSelector(
+  //   (state: RootState) => state.cartStore.cart
+  // )
+
+  // Get Updated Cart State
+  // useEffect(() => {
+  //   setLoading(true);
+  //   useDispatch(useGetCartQuery)
+  //     .then(cart => dispatch(setCart(cart)))
+  //     .catch(error => console.log(error))
+  //     .finally(() => setLoading(false))
+  // }, [dispatch]);
+
+
+  // const { cart } = useSelector((state: RootState) => state.cart);
+
+  // Get Cart from Agent
+  // useEffect(() => {
+  //   setLoading(true);
+  //   agent.ShoppingCart.get()
+  //     .then(cart => dispatch(setCart(cart)))
+  //     .catch(error => console.log(error))
+  //     .finally(() => setLoading(false))
+  // }, [dispatch]);
 
   // const handleAddItem = (product: Product) => {
   //   let quantity = 1;
@@ -82,7 +128,7 @@ const ProductCard = ({ product }: Props) => {
   //   setOnCart(true);
   // }
 
-  const handleCartItem = (product: Product) => {
+  const handleCartItem = async (product: Product) => {
 
     let quantity = 1;
 
@@ -96,25 +142,46 @@ const ProductCard = ({ product }: Props) => {
       quantity: quantity
     }
 
-    if (onCart) {
-      console.log(`ProductCard | remove item: productId ${cartItem.productId}`);
+    if (isOnCart) {
       dispatch(removeItemFromCart({ cartItem, quantity }));
-      console.log(`ProductCart | removing product from DB`);
-      agent.ShoppingCart.removeItem(cartItem.productId);
+      await removeItem({
+        productId: product.id,
+        quantity: quantity        
+      })
+
+      // USING AGENT
+      // console.log(`ProductCard | remove item: productId ${cartItem.productId}`);
+      // dispatch(removeItemFromCart({ cartItem, quantity }));
+      // console.log(`ProductCart | removing product from DB`);
+      // agent.ShoppingCart.removeItem(cartItem.productId);
     } else {
-      console.log(`ProductCard | adding product to status: productId ${cartItem.productId}, quantity: ${quantity}`);
-      dispatch(addItemToCart({ cartItem, quantity }));
-      console.log(`ProductCart | posting product`);
-      agent.ShoppingCart.addItem(cartItem.productId)
-      setOnCart(true);
+      // For State
+      dispatch(addItemToCart({ cartItem, quantity }))
+      // For Api
+      console.log(`productId: ${product.id} || quantity: ${quantity}`)
+      await addItem({       // First error
+        productId: product.id,
+        quantity: quantity
+      })
+
+
+      // USING AGENT
+      // console.log(`ProductCard | adding product to status: productId ${cartItem.productId}, quantity: ${quantity}`);
+      // dispatch(addItemToCart({ cartItem, quantity }));
+      // console.log(`ProductCart | posting product`);
+      // agent.ShoppingCart.addItem(cartItem.productId)
+      // setOnCart(true);
+
+      // TRY THUNK
+      // dispatch(addItemToCartAsync({ productId: product.id, quantity: quantity } as { productId: number, quantity?: number }));
     }
 
-    setOnCart(!onCart);
+    setIsOnCart(!isOnCart);
   }
 
 
 
-  if (loading) return <p>Still loading...</p>
+  // if (loading) return <p>Still loading...</p>
 
   return (
     <Card
@@ -177,12 +244,12 @@ const ProductCard = ({ product }: Props) => {
           backgroundColor: "rgba(200, 200, 200, 0.5)",
           zIndex: 1
         }}
-        onClick={() => handleCartItem(product)}
+        onClick={() => handleCartItem(product)}       /// 2nd error
       >
         <IconButton 
         // onClick={() => handleAddItem(product)}
         >
-          {onCart ? (
+          {isOnCart ? (
             <ShoppingCartIcon style={{ color: "secondary" }}/>
           ) : (
             <AddShoppingCartIcon style={{ color: "slate" }} />
@@ -199,10 +266,10 @@ const ProductCard = ({ product }: Props) => {
           backgroundColor: "rgba(200, 200, 200, 0.5)",
           zIndex: 1
         }}
-        onClick={() => setOnFavorites(!onFavorites)}
+        onClick={() => setIsOnFavorites(!isOnFavorites)}
       >
         <IconButton>
-          {onFavorites ? (
+          {isOnFavorites ? (
             <FavoriteIcon style={{ color: "primary" }} />
           ) : (
             <FavoriteBorderIcon style={{ color: "slate" }} />

@@ -3,15 +3,45 @@ import { ShoppingCart } from "../../app/models/shoppingCart";
 
 interface CartStatus {
     cart: ShoppingCart | null;
+    // status: string;     // for Thunk
 }
 
 const initialState: CartStatus = {
-    cart: null
+    cart: null,
+    // status: 'idle'      // for Thunk
 }
 
-const cartSlice = createSlice({
+// For Thunk
+// export const addItemToCartAsync = createAsyncThunk<ShoppingCart, { productId: number, quantity?: number  }>(
+//     'cart/addItemToCartAsync',
+//     async ({ productId, quantity= 1 }) => {
+//         try {
+//             return await agent.ShoppingCart.addItem(productId, quantity);
+//         } catch (error) {
+//             console.log(error);   
+//             throw error;
+//         }
+//     }
+// );
+
+// Extra reducers
+// export const cartExtraReducers = (builder: any) => {
+//     builder.addCase(addItemToCartAsync.pending, (state: CartStatus, action: any) => {
+//         console.log(action);
+//         state.status = 'pendingAddItem';
+//     });
+//     builder.addCase(addItemToCartAsync.fulfilled, (state: CartStatus, action: any) => {
+//         state.cart = action.payload;
+//         state.status = 'idle';
+//     });
+//     builder.addCase(addItemToCartAsync.rejected, (state: CartStatus) => {
+//         state.status = 'idle';
+//     });
+// }
+
+export const cartSlice = createSlice({
     name: 'cart',
-    initialState,
+    initialState: initialState,
     reducers: {
         setCart: (state, action) => {
             state.cart = action.payload;
@@ -49,7 +79,21 @@ const cartSlice = createSlice({
                 }
             }
         }
-    }
+    }, 
+    // extraReducers: (builder => {
+    //     builder.addCase(addItemToCartAsync.pending, (state, action) => {
+    //         console.log(action);
+    //         state.status = 'pendingAddItem';
+    //     });
+    //     builder.addCase(addItemToCartAsync.fulfilled, (state, action) => {
+    //         state.cart = action.payload;
+    //         state.status = 'idle';
+    //     });
+    //     builder.addCase(addItemToCartAsync.rejected, (state) => {
+    //         state.status = 'idle';
+    //     });
+    // })
+    // extraReducers: cartExtraReducers
 });
 
 export const { setCart, addItemToCart, removeItemFromCart } = cartSlice.actions;

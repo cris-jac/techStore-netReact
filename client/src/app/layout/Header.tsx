@@ -7,8 +7,14 @@ import logo from "/images/logo_2.png";
 
 import HeaderButton from "../components/HeaderButton";
 import SideMenu from "../components/SideMenu";
-import { useAppSelector } from "../store/configureStore";
+// import { useAppSelector } from "../store/configureStore_ts";
 import { getCookie } from "../util/util";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { CartItem } from "../models/shoppingCart";
+import { useEffect } from "react";
+import { setCart } from "../../features/shoppingCart/cartSlice";
+import { useGetCartQuery } from "../../features/shoppingCart/cartApi";
 
 // const midLinks = [
 //   { title: 'catalog', path: '/catalog' },
@@ -133,9 +139,24 @@ interface Props {
 
 const Header = ({ darkMode, handleThemeChange } : Props) => {
 
-  const { cart } = useAppSelector(state => state.cart);
+  // const dispatch = useDispatch();
+
+  // Get store data
+  // const { cart } = useAppSelector(state => state.cart);
+  const { cart } = useSelector((state: RootState) => state.cartStore);
+
+  // Get Api data
+  // const { data: cart, isError, isLoading } = useGetCartQuery(null);
+
+  // // Get Store data
+  // useEffect(() => {
+  //   if (!isLoading && !isError && cart) {
+  //     dispatch(setCart(cart));
+  //   }
+  // }, [dispatch]);
+
   const itemCount = cart?.items
-  ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
+  ? cart.items.reduce((sum: number, item: CartItem) => sum + item.quantity, 0)
   : 0;
 
   console.log(getCookie('buyerId'));

@@ -1,11 +1,12 @@
-import { useEffect, useState } from 'react'
-import agent from '../../app/api/agent';
 import { Button, Grid, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
 import ShoppingCartSummary from './ShoppingCartSummary';
 import ShoppingCartTable from './ShoppingCartTable';
-import { useAppDispatch, useAppSelector } from '../../app/store/configureStore';
+import { useGetCartQuery } from './cartApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 import { setCart } from './cartSlice';
+import store, { RootState } from '../../app/store/store';
 // import { makeStyles, spacing } from '@material-ui/core';
 
 // const useStyles = makeStyles({
@@ -19,17 +20,52 @@ import { setCart } from './cartSlice';
 
 const ShoppingCartPage = () => {
 
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
 
-    const { cart } = useAppSelector(state => state.cart); 
-    const dispatch = useAppDispatch();
+    // const { cart } = useAppSelector(state => state.cart); 
+    // const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        agent.ShoppingCart.get()
-            .then(cart => dispatch(setCart(cart)))
-            .catch(error => console.log(error))
-            .finally(() => setLoading(false));
-    }, []);
+    // useEffect(() => {
+    //     agent.ShoppingCart.get()
+    //         .then(cart => dispatch(setCart(cart)))
+    //         .catch(error => console.log(error))
+    //         .finally(() => setLoading(false));
+    // }, []);
+
+
+    // const shoppingCartFromState = useSelector((state: RootState) => state.cartStore.cart);
+
+    // useState
+    // const [cartItems, setCartItems] = useState<CartItem[] | null>(null);
+    
+    // Query State
+    // const { data: cart, isError, isLoading } = useGetCartQuery(null);
+
+    // const dispatch = useDispatch();
+
+    // useEffect(() => {
+    //     if (!isLoading && !isError && cart) {
+    //         console.log('setting cart in the state');
+    //         dispatch(setCart(cart)) 
+    //     } else if(isError) {
+    //         console.log(`Error while setting the cart state: ${isError}`);
+    //     }
+    // }, [dispatch])
+
+    // Get Store data
+    const { cart } = useSelector((state: RootState) => state.cartStore);
+
+    // Slice State
+    // const dispatch = useDispatch();
+    // const { cartFromState } = useSelector((state: RootState) => state.cartStore.cart)
+
+    // Slice State
+    // useEffect(() => {
+    //     getCart().then(cartFromState => dispatch(setCart(cartFromState)))
+
+        
+
+    // }, [dispatch])
 
     // const list = [
     //     {id: 1, quantity: 1, name: 'pepe', priceInRobux: 120 },
@@ -52,7 +88,7 @@ const ShoppingCartPage = () => {
     //     {id: 18, quantity: 2, name: 'paul', priceInRobux: 120 },
     // ]
 
-    if (loading) return <p>Loading</p>
+    // if (isLoading) return <p>Loading</p>
 
     if (!cart) return <Typography>You shopping cart is empty</Typography>
 

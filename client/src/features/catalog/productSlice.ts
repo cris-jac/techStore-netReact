@@ -2,19 +2,20 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Product } from "../../app/models/product";
 
 interface ProductState {
-    product: Product | null;
+    products: Product[] | null;
 }
 
 const initialState: ProductState = {
-    product: null
+    products: null,
 }
 
-const productSlice = createSlice({
+export const productSlice = createSlice({
     name: 'products',
     initialState,
     reducers: {
         setProducts: (state, action) => {
-            state.product = action.payload;
+            console.log("productSlice | setProducts");
+            state.products = action.payload;
         },
     }
 });
