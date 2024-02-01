@@ -40,6 +40,14 @@ public class OrdersController : ApiControllerBase
         //     .ToListAsync();
         var orders = await _unitOfWork.Orders.GetAllOrdersByUser(User.Identity.Name);
 
+        if (orders == null) 
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("No orders found for this users");
+            return NotFound(_response);
+        }
+
         var ordersDto = orders.Select(order => new OrderDto
         {
             Id = order.Id,
@@ -80,11 +88,12 @@ public class OrdersController : ApiControllerBase
 
         if (order == null) 
         {
-            _response.IsSuccess = true;
+            _response.IsSuccess = false;
             _response.StatusCode = HttpStatusCode.NotFound;
             _response.ErrorMessages.Add("Order not found");
             return NotFound(_response);
         }
+
         var orderDto = new OrderDto
         {
             Id = order.Id,
@@ -105,7 +114,10 @@ public class OrdersController : ApiControllerBase
             }).ToList()
         };
 
-        return Ok(orderDto);
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = orderDto;
+        return Ok(_response);
     }
 
     [HttpPost]
@@ -169,7 +181,13 @@ public class OrdersController : ApiControllerBase
 
         // Add order to db
         bool addOrder = await _unitOfWork.Orders.AddEntity(order);
-        if (!addOrder) return BadRequest("Error while adding order to DB");
+        if (!addOrder)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.BadRequest;
+            _response.ErrorMessages.Add("Error while adding order to DB");
+            return BadRequest(_response);
+        }
         
         // var orderResult = await _unitOfWork.CompleteAsync() > 0;
         // if (!orderResult) return BadRequest("Error while saving order");
@@ -177,7 +195,13 @@ public class OrdersController : ApiControllerBase
         // Remove the shopping cart
         // _context.ShoppingCarts.Remove(shoppingCart);    
         bool deleteCart = await _unitOfWork.ShoppingCart.DeleteEntity(shoppingCart);
-        if (!deleteCart) return BadRequest("Error while deleting cart to DB");
+        if (!deleteCart) 
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.BadRequest;
+            _response.ErrorMessages.Add("Error while deleting cart to DB");
+            return BadRequest(_response);
+        }
 
         // var cartResult = await _unitOfWork.CompleteAsync() > 0;
         // if (!cartResult) return BadRequest("Error while saving cart");
@@ -247,7 +271,7 @@ public class OrdersController : ApiControllerBase
         // var result = await _context.SaveChangesAsync() > 0;
         // var result = await _unitOfWork.CompleteAsync() > 0;
         var result = addOrder && deleteCart;
-        
+
         if (result) 
         {
             _response.IsSuccess = true;
