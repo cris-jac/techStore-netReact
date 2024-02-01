@@ -1,3 +1,4 @@
+using System.Net;
 using API.Data;
 using API.DTOs;
 using API.Models;
@@ -13,17 +14,18 @@ public class AuthController : ApiControllerBase
 {
     private readonly UserManager<User> _userManager;
     private readonly TokenService _tokenService;
-    private readonly StoreContext _context;
-
+    // private readonly StoreContext _context;
+    private ApiResponse _response;
     public AuthController(
         UserManager<User> userManager, 
-        TokenService tokenService,
-        StoreContext context
+        // StoreContext context,
+        TokenService tokenService
     )
     {
         _userManager = userManager;
+        // _context = context;
         _tokenService = tokenService;
-        _context = context;
+        _response = new ApiResponse();
     }
 
     [HttpPost("login")]
@@ -31,17 +33,32 @@ public class AuthController : ApiControllerBase
     {
         var user = await _userManager.FindByNameAsync(loginDto.Username);
 
-        if (user == null) return Unauthorized("User does not exists");
+        if (user == null) 
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.Unauthorized;
+            _response.ErrorMessages.Add("Username does not exists");
+            return Unauthorized(_response);
+        }
 
-        if (!await _userManager.CheckPasswordAsync(user, loginDto.Password)) return Unauthorized("User with this password does not exist"); 
+        if (!await _userManager.CheckPasswordAsync(user, loginDto.Password)) 
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.Unauthorized;
+            _response.ErrorMessages.Add("User with this password does not exist");
+            return Unauthorized(_response); 
+        }
 
-        var response = new LoginResponseDto
+        var loginResponse = new LoginResponseDto
         {
             Email = user.Email,
             Token = await _tokenService.GenerateToken(user)
         };
 
-        return Ok(response);
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = loginResponse;
+        return Ok(_response);
     }
 
     [HttpPost("register")]
@@ -67,13 +84,16 @@ public class AuthController : ApiControllerBase
 
         await _userManager.AddToRoleAsync(user, SD.Role_Customer);
 
-        return Created();
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.Created;
+        return Ok(_response);
     }
 
-    [HttpGet]
-    public async Task<ActionResult> GetAllUsers()
-    {
-        var users = await _context.Users.ToListAsync();
-        return Ok(users);
-    }
+    // 
+    // [HttpGet]
+    // public async Task<ActionResult> GetAllUsers()
+    // {
+    //     var users = await _context.Users.ToListAsync();
+    //     return Ok(users);
+    // }
 }

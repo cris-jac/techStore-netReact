@@ -115,9 +115,18 @@ public class ProductsController : ApiControllerBase
             //     productParams.PageNumber, productParams.PageSize
             // );
 
-            if (products == null) return BadRequest();
-
-            return Ok(products);
+            if (products == null) 
+            {
+                _response.IsSuccess = false;
+                _response.StatusCode = HttpStatusCode.NotFound;
+                _response.ErrorMessages.Add("There are no results found");   
+                return NotFound(_response);
+            }
+                
+            _response.IsSuccess = true;
+            _response.StatusCode = HttpStatusCode.OK;
+            _response.Result = products;
+            return Ok(_response);
 
 
 
@@ -141,12 +150,12 @@ public class ProductsController : ApiControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.ToString());
-            // _response.IsSuccess = false;
-            // _response.StatusCode = HttpStatusCode.InternalServerError;
-            // _response.ErrorMessages.Add(ex.ToString());   
+            // return BadRequest(ex.ToString());
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.InternalServerError;
+            _response.ErrorMessages.Add(ex.ToString());   
             
-            // return _response;
+            return BadRequest(_response);
         }
     }
 
@@ -178,7 +187,7 @@ public class ProductsController : ApiControllerBase
             _response.StatusCode = HttpStatusCode.InternalServerError;
             _response.ErrorMessages.Add(ex.ToString());   
 
-            return _response;
+            return BadRequest(_response);
         }
     }
 }

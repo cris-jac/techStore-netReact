@@ -1,3 +1,4 @@
+using System.Net;
 using API.Data;
 using API.DTOs;
 using API.Extensions;
@@ -15,7 +16,7 @@ public class OrdersController : ApiControllerBase
     // private readonly StoreContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager<User> _userManager;
-
+    private ApiResponse _response;
     public OrdersController(
         // StoreContext context,
         IUnitOfWork unitOfWork,
@@ -25,6 +26,7 @@ public class OrdersController : ApiControllerBase
         // _context = context;
         _unitOfWork = unitOfWork;
         _userManager = userManager;
+        _response = new ApiResponse();
     }
 
     [HttpGet]
@@ -58,7 +60,10 @@ public class OrdersController : ApiControllerBase
             }).ToList()
         }); 
 
-        return Ok(ordersDto);
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = ordersDto;
+        return Ok(_response);
     }
 
     [HttpGet("id", Name = "GetOrder")]
@@ -73,8 +78,13 @@ public class OrdersController : ApiControllerBase
 
         var order = await _unitOfWork.Orders.GetOrderByUser(id, User.Identity.Name);
 
-        if (order == null) return NotFound("No orders here");
-
+        if (order == null) 
+        {
+            _response.IsSuccess = true;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("Order not found");
+            return NotFound(_response);
+        }
         var orderDto = new OrderDto
         {
             Id = order.Id,
@@ -106,8 +116,13 @@ public class OrdersController : ApiControllerBase
         //     .FirstOrDefaultAsync();
         var shoppingCart = await _unitOfWork.ShoppingCart.GetShoppingCartByUser(User.Identity.Name);
         
-        if (shoppingCart == null) return BadRequest($"Could not locate the cart: {User.Identity.Name} and");
-
+        if (shoppingCart == null) 
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add($"Could not locate the cart for user: {User.Identity.Name}");   
+            return BadRequest(_response);
+        }
         var items = new List<OrderItem>();
 
         foreach (var item in shoppingCart.Items)
@@ -232,8 +247,19 @@ public class OrdersController : ApiControllerBase
         // var result = await _context.SaveChangesAsync() > 0;
         // var result = await _unitOfWork.CompleteAsync() > 0;
         var result = addOrder && deleteCart;
-        if (result) return CreatedAtRoute("GetOrder", new { id = order.Id });
+        
+        if (result) 
+        {
+            _response.IsSuccess = true;
+            _response.StatusCode = HttpStatusCode.Created;
+            _response.Result = new { order.Id };
+            return Ok(_response);
+            // CreatedAtRoute("GetOrder", new { id = order.Id });
+        }
 
-        return BadRequest("Problem posting order");
+        _response.IsSuccess = false;
+        _response.StatusCode = HttpStatusCode.BadRequest;
+        _response.ErrorMessages.Add("Problem posting order");
+        return BadRequest(_response);
     }
 }

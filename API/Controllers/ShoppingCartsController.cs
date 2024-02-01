@@ -1,3 +1,4 @@
+using System.Net;
 using API.Data;
 // using API.Data.Migrations;
 using API.DTOs;
@@ -13,7 +14,7 @@ public class ShoppingCartsController : ApiControllerBase
     // private readonly StoreContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IHttpContextAccessor _httpContextAccessor;
-
+    private ApiResponse _response;
     public ShoppingCartsController(
         // StoreContext context,
         IUnitOfWork unitOfWork,
@@ -23,6 +24,7 @@ public class ShoppingCartsController : ApiControllerBase
         // _context = context;
         _unitOfWork = unitOfWork;
         _httpContextAccessor = httpContextAccessor;
+        _response = new ApiResponse();
     }
 
     [HttpGet(Name = "GetShoppingCart")]
@@ -57,7 +59,10 @@ public class ShoppingCartsController : ApiControllerBase
             }).ToList()
         }; 
 
-        return Ok(shoppingCartDto);
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = shoppingCartDto;
+        return Ok(_response);
     }
 
     [HttpPost]
@@ -79,7 +84,10 @@ public class ShoppingCartsController : ApiControllerBase
         var product = await _unitOfWork.Products.GetById(productId);
         if (product == null)
         {
-            return NotFound();
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("Product does not exist");
+            return NotFound(_response);
         }
 
         // add item
@@ -88,7 +96,9 @@ public class ShoppingCartsController : ApiControllerBase
         // save changes
         await _unitOfWork.CompleteAsync();
 
-        return Created();
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.Created;
+        return Ok(_response);
     }
 
     [HttpDelete]
@@ -100,7 +110,13 @@ public class ShoppingCartsController : ApiControllerBase
         // get cart
         ShoppingCart shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor, buyerId);
 
-        if (shoppingCart == null) return NotFound();
+        if (shoppingCart == null) 
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("Shopping cart does not exist");
+            return NotFound(_response);
+        }
 
         // remove item or reduce
         shoppingCart.RemoveItem(productId, quantity);
@@ -108,6 +124,8 @@ public class ShoppingCartsController : ApiControllerBase
         // save changes
         await _unitOfWork.CompleteAsync();
 
-        return Ok();
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        return Ok(_response);
     }
 }

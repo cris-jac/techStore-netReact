@@ -1,6 +1,8 @@
+using System.Net;
 using API.Data;
 using API.Extensions;
 using API.Interfaces;
+using API.Models;
 using API.Repositories;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +15,7 @@ public class PaymentsController : ApiControllerBase
     // private readonly StoreContext _context;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IHttpContextAccessor _httpContextAccessor;
-
+    private ApiResponse _response;
     public PaymentsController(
         PaymentService paymentService, 
         // StoreContext context,
@@ -25,6 +27,7 @@ public class PaymentsController : ApiControllerBase
         // _context = context;
         _unitOfWork = unitOfWork;
         _httpContextAccessor = httpContextAccessor;
+        _response = new ApiResponse();
     }
 
     [HttpGet("id")]
@@ -32,9 +35,18 @@ public class PaymentsController : ApiControllerBase
     {
         var preference = await _paymentService.GetPreference(preferenceId);
 
-        if (preference == null) return NotFound("Preference with this id does not exists");
+        if (preference == null)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("Preference with this id does not exist");
+            return NotFound(_response);
+        } 
 
-        return Ok(preference);
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = preference;
+        return Ok(_response);
     }
 
     [HttpPost]
@@ -46,12 +58,24 @@ public class PaymentsController : ApiControllerBase
         // get cart using the buyerId
         var shoppingCart = await _unitOfWork.ShoppingCart.RetrieveShoppingCart(_httpContextAccessor, buyerId);
 
-        if (shoppingCart == null) return NotFound("Error retrieving shopping cart");
+        if (shoppingCart == null)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.NotFound;
+            _response.ErrorMessages.Add("Error retrieving shopping cart");
+            return NotFound(_response);
+        }
 
         // create preference
         var paymentIntent = await _paymentService.CreatePaymentOrder(shoppingCart);
 
-        if (paymentIntent == null) return BadRequest("Error while trying to create preference");
+        if (paymentIntent == null)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.BadRequest;
+            _response.ErrorMessages.Add("Error while trying to create preference");
+            return BadRequest(_response);
+        }
 
         // get data from response
         shoppingCart.PreferenceClientId = paymentIntent.client_id;
@@ -60,14 +84,29 @@ public class PaymentsController : ApiControllerBase
         // Update the shopping cart
         // _context.Update(shoppingCart);
         bool updateCart = await _unitOfWork.ShoppingCart.UpdateEntity(shoppingCart);
-        if (!updateCart) return BadRequest("");
+        if (!updateCart)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.BadRequest;
+            _response.ErrorMessages.Add("Error while trying to create preference");
+            return BadRequest("");
+        }
 
         // 
         var result = await _unitOfWork.CompleteAsync() > 0;
 
         //
-        if (!result) return BadRequest("Error while saving changes to cart");
+        if (!result)
+        {
+            _response.IsSuccess = false;
+            _response.StatusCode = HttpStatusCode.BadRequest;
+            _response.ErrorMessages.Add("Error while saving changes to cart");
+            return BadRequest(_response);
+        }
 
-        return Ok(shoppingCart);
+        _response.IsSuccess = true;
+        _response.StatusCode = HttpStatusCode.OK;
+        _response.Result = shoppingCart;
+        return Ok(_response);
     }
 }
